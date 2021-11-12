@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -47,6 +47,7 @@ namespace ShipBattle
         {
             this.Width = mapSize * 2 * cellSize + 100;
             this.Height = (mapSize + 3) * cellSize + 100;
+
             for (int i = 0; i < mapSize; i++)
             {
                 for (int j = 0; j < mapSize; j++)
@@ -98,8 +99,8 @@ namespace ShipBattle
                     {
                         enemyButtons[i, j] = button;
                     }
-                this.Controls.Add(button);
-                }       
+                    this.Controls.Add(button);
+                }
             }
 
             Label map1 = new Label();
@@ -142,7 +143,6 @@ namespace ShipBattle
         public void Start(object sender, EventArgs e)
         {
             isPlaying = true;
-
         }
 
 
@@ -152,7 +152,7 @@ namespace ShipBattle
 
             foreach (Point p in l)
             {
-                isChecked = isChecked && !( myMap[p.Y, p.X] == 1 || myMap[p.Y, p.X] == -1);
+                isChecked = isChecked && !(myMap[p.Y, p.X] == 1 || myMap[p.Y, p.X] == -1);
             }
 
             return isChecked;
@@ -166,9 +166,9 @@ namespace ShipBattle
                 myButtons[p.Y, p.X].BackColor = Color.Red;
             }
 
-            for (int i = 0; i < mapSize-1; i++)
+            for (int i = 0; i < mapSize; i++)
             {
-                for (int j = 0; j < mapSize-1; j++)
+                for (int j = 0; j < mapSize; j++)
                 {
                     if (myMap[i, j] == 1)
                     {
@@ -180,20 +180,21 @@ namespace ShipBattle
 
         private void fillFields(int i, int j)
         {
-          
-            for (int k = i - 1; k <= i+1 ; k++)
+
+            for (int k = i - 1; k <= i + 1; k++)
             {
-                for (int c = j - 1; c <= j+1 ; c++)
+                for (int c = j - 1; c <= j + 1; c++)
                     if (!cantFill(k, c))
                     {
                         myMap[k, c] = -1;
+                        //myButtons[k, c].BackColor = Color.Blue;
                     }
             }
         }
 
-        private bool cantFill(int i, int j) 
+        private bool cantFill(int i, int j)
         {
-            return (myMap[i, j] == 1 || i > mapSize  || j > mapSize );
+            return !(i < mapSize && j < mapSize && myMap[i, j] != 1);
         }
 
         private void showError_1()
@@ -205,11 +206,36 @@ namespace ShipBattle
         {
             MessageBox.Show("ЧИТАЙ ПРАВИЛААА2");
         }
+
+        private void showError_3()
+        {
+            MessageBox.Show("ЧИТАЙ ПРАВИЛААА3");
+        }
+
+        private void showError_4()
+        {
+            MessageBox.Show("ЧИТАЙ ПРАВИЛААА4");
+        }
+        private void showError_5()
+        {
+            MessageBox.Show("ЧИТАЙ ПРАВИЛААА5");
+        }
         private void readFields(int positionInCheckedListBoxOne, Button pressedButton, bool isHorizontal)
         {
+            bool flag;
+
+            if (isHorizontal)
+            {
+                flag = pressedButton.Location.X / cellSize + positionInCheckedListBoxOne <= mapSize;
+            }
+            else
+            {
+                flag = pressedButton.Location.Y / cellSize + positionInCheckedListBoxOne <= mapSize;
+            }
+
             if (countShips[positionInCheckedListBoxOne] > 0)
             {
-                if (pressedButton.Location.Y / cellSize + positionInCheckedListBoxOne <= mapSize)
+                if (flag)
                 {
                     List<Point> l = new List<Point>();
                     int k = 0;
@@ -217,7 +243,6 @@ namespace ShipBattle
                     int ky = 0;
                     while (k < positionInCheckedListBoxOne)
                     {
-
                         int x = pressedButton.Location.X / cellSize + kx; // Горизонталь
                         int y = pressedButton.Location.Y / cellSize + ky; // Вертикаль
                         l.Add(new Point(x, y));
@@ -235,6 +260,7 @@ namespace ShipBattle
 
                     if (check(l))
                     {
+
                         addShip(l);
                         countShips[positionInCheckedListBoxOne]--;
                     }
@@ -259,8 +285,28 @@ namespace ShipBattle
             string positionInCheckedListBoxTwo = Convert.ToString(checkedListBox2.SelectedItem);
             Button pressedButton = sender as Button;
 
-            readFields(positionInCheckedListBoxOne, pressedButton, positionInCheckedListBoxTwo == "Горизонтально");
-  
+            if (positionInCheckedListBoxOne == 0 || positionInCheckedListBoxTwo == "")
+            {
+                if (positionInCheckedListBoxOne == 0 && positionInCheckedListBoxTwo == "")
+                {
+                    showError_5();
+                }
+
+                else if (positionInCheckedListBoxOne == 0)
+                {
+                    showError_3();
+                }
+
+                else if (positionInCheckedListBoxTwo == "")
+                {
+                    showError_4();
+                }
+            }
+            else
+            {
+                readFields(positionInCheckedListBoxOne, pressedButton, positionInCheckedListBoxTwo == "Горизонтально");
+            }
+
         }
     }
 }

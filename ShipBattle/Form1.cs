@@ -12,12 +12,15 @@ namespace ShipBattle
 {
     public partial class Form1 : Form
     {
+        ErorrsForDebug erorrs = new ErorrsForDebug();
 
         public const int mapSize = 11;
-        public int cellSize = 30;
-        public string alphabet = "АБВГДЕЖЗИК";
+        static int cellSize = 30;
+        static string alphabet = "АБВГДЕЖЗИК";
 
-        public int[,] myMap = new int[mapSize, mapSize];
+        //CreateMap createMap = new CreateMap(mapSize, cellSize, alphabet);
+
+        public int[,] myMap = new int[mapSize, mapSize];    
         public int[,] enemyMap = new int[mapSize, mapSize];
 
         public Button[,] myButtons = new Button[mapSize, mapSize];
@@ -197,29 +200,6 @@ namespace ShipBattle
             return !(i < mapSize && j < mapSize && myMap[i, j] != 1);
         }
 
-        private void showError_1()
-        {
-            MessageBox.Show("ЧИТАЙ ПРАВИЛААА1");
-        }
-
-        private void showError_2()
-        {
-            MessageBox.Show("ЧИТАЙ ПРАВИЛААА2");
-        }
-
-        private void showError_3()
-        {
-            MessageBox.Show("ЧИТАЙ ПРАВИЛААА3");
-        }
-
-        private void showError_4()
-        {
-            MessageBox.Show("ЧИТАЙ ПРАВИЛААА4");
-        }
-        private void showError_5()
-        {
-            MessageBox.Show("ЧИТАЙ ПРАВИЛААА5");
-        }
         private void readFields(int positionInCheckedListBoxOne, Button pressedButton, bool isHorizontal)
         {
             bool flag;
@@ -266,12 +246,12 @@ namespace ShipBattle
                     }
                     else
                     {
-                        showError_1();
+                        erorrs.showErorr_1();
                     }
                 }
                 else
                 {
-                    showError_2();
+                    erorrs.showErorr_2();
                 }
             }
             else
@@ -289,17 +269,17 @@ namespace ShipBattle
             {
                 if (positionInCheckedListBoxOne == 0 && positionInCheckedListBoxTwo == "")
                 {
-                    showError_5();
+                    erorrs.showErorr_5();
                 }
 
                 else if (positionInCheckedListBoxOne == 0)
                 {
-                    showError_3();
+                    erorrs.showErorr_3();
                 }
 
                 else if (positionInCheckedListBoxTwo == "")
                 {
-                    showError_4();
+                    erorrs.showErorr_4();
                 }
             }
             else

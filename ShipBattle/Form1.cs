@@ -12,15 +12,12 @@ namespace ShipBattle
 {
     public partial class Form1 : Form
     {
-        ErorrsForDebug erorrs = new ErorrsForDebug();
 
         public const int mapSize = 11;
-        static int cellSize = 30;
-        static string alphabet = "АБВГДЕЖЗИК";
+        public int cellSize = 30;
+        public string alphabet = "АБВГДЕЖЗИК";
 
-        //CreateMap createMap = new CreateMap(mapSize, cellSize, alphabet);
-
-        public int[,] myMap = new int[mapSize, mapSize];    
+        public int[,] myMap = new int[mapSize, mapSize];
         public int[,] enemyMap = new int[mapSize, mapSize];
 
         public Button[,] myButtons = new Button[mapSize, mapSize];
@@ -46,6 +43,9 @@ namespace ShipBattle
             CreateMaps();
         }
 
+        /// <summary>
+        /// Создание карты
+        /// </summary>
         public void CreateMaps()
         {
             this.Width = mapSize * 2 * cellSize + 100;
@@ -101,6 +101,7 @@ namespace ShipBattle
                     else
                     {
                         enemyButtons[i, j] = button;
+                        button.Click += new EventHandler(Shoot);
                     }
                     this.Controls.Add(button);
                 }
@@ -143,12 +144,34 @@ namespace ShipBattle
             countShips.Add(1, 4);
         }
 
+        /// <summary>
+        /// Можно ли начать игру 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         public void Start(object sender, EventArgs e)
         {
-            isPlaying = true;
+            int sum = 0;
+            foreach (int sumOfShips in countShips.Values)
+            {
+                sum += sumOfShips;
+            }
+            if (sum==0)
+            {
+                isPlaying = true;
+            }
+            else
+            {
+                MessageBox.Show("Вы не расставили все корабли");
+                isPlaying = false;
+            }
         }
 
-
+        /// <summary>
+        /// Проверка на возможность поставить корабль в окресности корабля или на сам корабль
+        /// </summary>
+        /// <param name="l"></param>
+        /// <returns></returns> 
         private bool check(List<Point> l)
         {
             bool isChecked = true;
@@ -157,10 +180,13 @@ namespace ShipBattle
             {
                 isChecked = isChecked && !(myMap[p.Y, p.X] == 1 || myMap[p.Y, p.X] == -1);
             }
-
             return isChecked;
         }
 
+        /// <summary>
+        /// Расстановка кораблей 
+        /// </summary>
+        /// <param name="l"></param>
         private void addShip(List<Point> l)
         {
             foreach (Point p in l)
@@ -181,6 +207,11 @@ namespace ShipBattle
             }
         }
 
+        /// <summary>
+        /// Заполнение окрестности корабля в радиусе 1
+        /// </summary>
+        /// <param name="i"></param>
+        /// <param name="j"></param>
         private void fillFields(int i, int j)
         {
 
@@ -190,16 +221,48 @@ namespace ShipBattle
                     if (!cantFill(k, c))
                     {
                         myMap[k, c] = -1;
-                        //myButtons[k, c].BackColor = Color.Blue;
+                        if (k!=0 && c!= 0 && k!=12 && c!=12)
+                        {
+                            myButtons[k, c].BackColor = Color.Blue;
+                        }
                     }
             }
         }
 
+        /// <summary>
+        /// Проверка для заполнения окрестности вокруг корабля
+        /// </summary>
+        /// <param name="i"></param>
+        /// <param name="j"></param>
+        /// <returns></returns>
         private bool cantFill(int i, int j)
         {
             return !(i < mapSize && j < mapSize && myMap[i, j] != 1);
         }
 
+        private void showError_1()
+        {
+            MessageBox.Show("ЧИТАЙ ПРАВИЛААА1");
+        }
+
+        private void showError_2()
+        {
+            MessageBox.Show("ЧИТАЙ ПРАВИЛААА2");
+        }
+
+        private void showError_3()
+        {
+            MessageBox.Show("ЧИТАЙ ПРАВИЛААА3");
+        }
+
+        private void showError_4()
+        {
+            MessageBox.Show("ЧИТАЙ ПРАВИЛААА4");
+        }
+        private void showError_5()
+        {
+            MessageBox.Show("ЧИТАЙ ПРАВИЛААА5");
+        }
         private void readFields(int positionInCheckedListBoxOne, Button pressedButton, bool isHorizontal)
         {
             bool flag;
@@ -240,18 +303,17 @@ namespace ShipBattle
 
                     if (check(l))
                     {
-
                         addShip(l);
                         countShips[positionInCheckedListBoxOne]--;
                     }
                     else
                     {
-                        erorrs.showErorr_1();
+                        showError_1();
                     }
                 }
                 else
                 {
-                    erorrs.showErorr_2();
+                    showError_2();
                 }
             }
             else
@@ -269,17 +331,17 @@ namespace ShipBattle
             {
                 if (positionInCheckedListBoxOne == 0 && positionInCheckedListBoxTwo == "")
                 {
-                    erorrs.showErorr_5();
+                    showError_5();
                 }
 
                 else if (positionInCheckedListBoxOne == 0)
                 {
-                    erorrs.showErorr_3();
+                    showError_3();
                 }
 
                 else if (positionInCheckedListBoxTwo == "")
                 {
-                    erorrs.showErorr_4();
+                    showError_4();
                 }
             }
             else
@@ -287,6 +349,17 @@ namespace ShipBattle
                 readFields(positionInCheckedListBoxOne, pressedButton, positionInCheckedListBoxTwo == "Горизонтально");
             }
 
+        }
+
+        public void Shoot(object sender, EventArgs e)
+        {
+            if (isPlaying)
+            {
+                Button pressedButton = sender as Button;
+                pressedButton.BackColor = Color.Black;
+            }
+            else
+                MessageBox.Show("Нужно начать игру");
         }
     }
 }

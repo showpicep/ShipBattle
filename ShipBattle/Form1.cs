@@ -14,7 +14,7 @@ namespace ShipBattle
     {
 
         public const int mapSize = 11;
-        public int cellSize = 30;
+        public const int cellSize = 30;
         public string alphabet = "АБВГДЕЖЗИК";
 
         public int[,] myMap = new int[mapSize, mapSize];
@@ -29,6 +29,7 @@ namespace ShipBattle
         public CheckedListBox checkedListBox2 = new CheckedListBox();
         Dictionary<int, int> countShips = new Dictionary<int, int>();
 
+        public Bot bot;
 
         public Form1()
         {
@@ -41,6 +42,8 @@ namespace ShipBattle
         {
             isPlaying = false;
             CreateMaps();
+            bot = new Bot(ref enemyMap, ref myMap, enemyButtons, myButtons);
+            bot.ConfigureShips();
         }
 
         /// <summary>
@@ -172,7 +175,7 @@ namespace ShipBattle
         /// </summary>
         /// <param name="l"></param>
         /// <returns></returns> 
-        private bool check(List<Point> l)
+        public bool check(List<Point> l)
         {
             bool isChecked = true;
 
@@ -187,7 +190,7 @@ namespace ShipBattle
         /// Расстановка кораблей 
         /// </summary>
         /// <param name="l"></param>
-        private void addShip(List<Point> l)
+        public void addShip(List<Point> l)
         {
             foreach (Point p in l)
             {
@@ -212,7 +215,7 @@ namespace ShipBattle
         /// </summary>
         /// <param name="i"></param>
         /// <param name="j"></param>
-        private void fillFields(int i, int j)
+        public void fillFields(int i, int j)
         {
 
             for (int k = i - 1; k <= i + 1; k++)
@@ -223,7 +226,7 @@ namespace ShipBattle
                         myMap[k, c] = -1;
                         if (k!=0 && c!= 0 && k!=12 && c!=12)
                         {
-                            myButtons[k, c].BackColor = Color.Blue;
+                            myButtons[k, c].BackColor = Color.Aquamarine;
                         }
                     }
             }
@@ -235,34 +238,11 @@ namespace ShipBattle
         /// <param name="i"></param>
         /// <param name="j"></param>
         /// <returns></returns>
-        private bool cantFill(int i, int j)
+        public bool cantFill(int i, int j)
         {
             return !(i < mapSize && j < mapSize && myMap[i, j] != 1);
         }
 
-        private void showError_1()
-        {
-            MessageBox.Show("ЧИТАЙ ПРАВИЛААА1");
-        }
-
-        private void showError_2()
-        {
-            MessageBox.Show("ЧИТАЙ ПРАВИЛААА2");
-        }
-
-        private void showError_3()
-        {
-            MessageBox.Show("ЧИТАЙ ПРАВИЛААА3");
-        }
-
-        private void showError_4()
-        {
-            MessageBox.Show("ЧИТАЙ ПРАВИЛААА4");
-        }
-        private void showError_5()
-        {
-            MessageBox.Show("ЧИТАЙ ПРАВИЛААА5");
-        }
         private void readFields(int positionInCheckedListBoxOne, Button pressedButton, bool isHorizontal)
         {
             bool flag;
@@ -318,7 +298,7 @@ namespace ShipBattle
             }
             else
             {
-                MessageBox.Show("Выбери корабль");
+                MessageBox.Show("Корабли с количеством палуб " + positionInCheckedListBoxOne + " закончились");
             }
         }
         public void ConfigureShips(object sender, EventArgs e)
@@ -353,13 +333,63 @@ namespace ShipBattle
 
         public void Shoot(object sender, EventArgs e)
         {
+            //bool hit = false;
             if (isPlaying)
             {
+                int delta = 0;
                 Button pressedButton = sender as Button;
-                pressedButton.BackColor = Color.Black;
+                if (pressedButton.Location.X > 350)
+                    delta = 350;
+
+                int Y = pressedButton.Location.Y / cellSize; // индекс по у 
+                int X = (pressedButton.Location.X - delta) / cellSize;
+
+                if (enemyMap[Y, X] == 1)
+                {
+                    pressedButton.BackColor = Color.Red; // попадание
+                    enemyMap[Y, X] = 2;
+                }
+                else
+                {
+                    pressedButton.BackColor = Color.Black; // miss
+                    //hit = true;
+                }
             }
             else
                 MessageBox.Show("Нужно начать игру");
+
+            //return hit;
         }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void showError_1()
+        {
+            MessageBox.Show("ЧИТАЙ ПРАВИЛААА1");
+        }
+
+        private void showError_2()
+        {
+            MessageBox.Show("ЧИТАЙ ПРАВИЛААА2");
+        }
+
+        private void showError_3()
+        {
+            MessageBox.Show("Выберите количество палуб у корабля");
+        }
+
+        private void showError_4()
+        {
+            MessageBox.Show("Выберите положение коробля");
+        }
+
+        private void showError_5()
+        {
+            MessageBox.Show("Вы не выбрали корабль");
+        }
+
     }
 }

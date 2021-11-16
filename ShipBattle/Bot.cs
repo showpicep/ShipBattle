@@ -88,7 +88,7 @@ namespace ShipBattle
             foreach (Point p in l)
             {
                 myMap[p.Y, p.X] = 1;
-                //myButtons[p.Y, p.X].BackColor = Color.Red;
+                //myButtons[p.Y, p.X].BackColor = Color.Red;//
             }
 
             for (int i = 0; i < Form1.mapSize; i++)
@@ -116,6 +116,10 @@ namespace ShipBattle
                     if (!cantFill(k, c))
                     {
                         myMap[k, c] = -1;
+                        //if (k != 0 && c != 0 && k != 12 && c != 12)//
+                        //{//
+                        //    myButtons[k, c].BackColor = Color.Aquamarine;//
+                        //}//
                     }
             }
         }
@@ -194,16 +198,58 @@ namespace ShipBattle
         public void ConfigureShips()
         {
             placeShips();
-            for (int i = 0; i < Form1.mapSize; i++)
+            //for (int i = 0; i < Form1.mapSize; i++)
+            //{
+            //    for (int j = 0; j < Form1.mapSize; j++)
+            //    {
+            //        if (myMap[i,j] == 1)
+            //        {
+            //            myButtons[i, j].BackColor = Color.Red;
+            //        }
+            //    }
+            //}
+        }
+
+        public bool Shoot()
+        {
+            bool hit =false;
+
+            Random r = new Random();
+
+            int posX = r.Next(1, Form1.mapSize);
+            int posY = r.Next(1, Form1.mapSize);
+            if (Form1.isPlaying)
             {
-                for (int j = 0; j < Form1.mapSize; j++)
+                while (enemyButtons[posY, posX].BackColor == Color.Blue || enemyButtons[posY, posX].BackColor == Color.Black)
                 {
-                    if (myMap[i,j] == 1)
-                    {
-                        myButtons[i, j].BackColor = Color.Red;
-                    }
+                    posX = r.Next(1, Form1.mapSize);
+                    posY = r.Next(1, Form1.mapSize);
                 }
+
+                if (enemyMap[posY, posX] == 1)
+                {
+                    hit = true;
+                    enemyMap[posY, posX] = 0;
+                    enemyButtons[posY, posX].BackColor = Color.Blue;
+                    enemyButtons[posY, posX].Text = "X";
+                }
+                else
+                {
+                    hit = false;
+                    enemyButtons[posY, posX].BackColor = Color.Black;
+                }
+                if (hit)
+                    Shoot();
             }
+            return hit;
+        }
+
+        public bool SmartShoot()
+        {
+            bool hit = false;
+
+
+            return hit;
         }
     }
 }

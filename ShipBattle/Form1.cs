@@ -23,7 +23,7 @@ namespace ShipBattle
         public Button[,] myButtons = new Button[mapSize, mapSize];
         public Button[,] enemyButtons = new Button[mapSize, mapSize];
 
-        public bool isPlaying = false;
+        public static bool isPlaying = false;
 
         public CheckedListBox checkedListBox1 = new CheckedListBox();
         public CheckedListBox checkedListBox2 = new CheckedListBox();
@@ -104,7 +104,7 @@ namespace ShipBattle
                     else
                     {
                         enemyButtons[i, j] = button;
-                        button.Click += new EventHandler(Shoot);
+                        button.Click += new EventHandler(PlayerShoot);// CHANGE!
                     }
                     this.Controls.Add(button);
                 }
@@ -331,13 +331,24 @@ namespace ShipBattle
 
         }
 
-        public void Shoot(object sender, EventArgs e)
+        public void PlayerShoot(object sender, EventArgs e)
         {
-            //bool hit = false;
+            Button pressedButton = sender as Button;
+            bool playerTurn = Shoot(pressedButton);
+
+            if (!playerTurn)
+            {
+                bot.Shoot();
+            }
+
+        }
+
+        public bool Shoot(Button pressedButton)
+        {
+            bool hit = false;
             if (isPlaying)
             {
                 int delta = 0;
-                Button pressedButton = sender as Button;
                 if (pressedButton.Location.X > 350)
                     delta = 350;
 
@@ -347,18 +358,23 @@ namespace ShipBattle
                 if (enemyMap[Y, X] == 1)
                 {
                     pressedButton.BackColor = Color.Red; // попадание
+                    pressedButton.Text = "X";
+                    enemyButtons[Y, X].Enabled = false; //чтобы нельзя было повторно нажать на кнопку
                     enemyMap[Y, X] = 2;
+                    hit = true;
                 }
-                else
+                if (enemyMap[Y, X] != 1 && enemyMap[Y, X] != -2 && enemyMap[Y, X] != 2) // если попал не в корабли И не на уже нажатое место и не на подбитую часть корабля
                 {
                     pressedButton.BackColor = Color.Black; // miss
-                    //hit = true;
+                    enemyMap[Y, X] = -2;
+                    enemyButtons[Y, X].Enabled = false; // чтобы нельзя было повторно нажать на кнопку 
+                    hit = false;
                 }
             }
             else
                 MessageBox.Show("Нужно начать игру");
 
-            //return hit;
+            return hit;
         }
 
         private void Form1_Load(object sender, EventArgs e)

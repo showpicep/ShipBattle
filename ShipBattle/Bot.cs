@@ -8,8 +8,12 @@ using System.Drawing;
 
 namespace ShipBattle
 {
-    public class Bot
+    class Bot
     {
+        private List<Ship> ships = new List<Ship>();
+
+        private int countOfAlives;
+
         public int[,] myMap = new int[Form1.mapSize, Form1.mapSize];// карта бота 
         public int[,] enemyMap = new int[Form1.mapSize, Form1.mapSize];// карта игрока 
         private Random rdn = new Random();
@@ -20,6 +24,7 @@ namespace ShipBattle
 
         public Bot(ref int[,] myMap,ref int[,] enemyMap, Button[,] myButtons, Button[,] enemyButtons)
         {
+            countOfAlives = 10;
             this.myMap = myMap;
             this.enemyMap = enemyMap;
             this.enemyButtons = enemyButtons;
@@ -30,6 +35,22 @@ namespace ShipBattle
             countShips.Add(2, 3);
             countShips.Add(1, 4);
         }
+
+        public List<List<MyPoint>> GetDeads()
+        {
+            List<List<MyPoint>> list = new List<List<MyPoint>>();
+
+            foreach(Ship s in ships)
+            {
+                if (!s.getIsAlive())
+                {
+                    list.Add(s.getPoints());
+                }
+            }
+
+            return list;
+        }
+      
 
         /// <summary>
         /// Случайно выдается булевское значение, которое потом будем вставлять в функцию для определение положения корабля
@@ -85,11 +106,17 @@ namespace ShipBattle
         /// <param name="point"></param>
         public void addShip(List<Point> l)
         {
+            Ship ship = new Ship();
+
             foreach (Point p in l)
             {
+                MyPoint newPoint = new MyPoint(p);
+                ship.addPoint(newPoint);
                 myMap[p.Y, p.X] = 1;
                 //myButtons[p.Y, p.X].BackColor = Color.Red;//
             }
+
+            ships.Add(ship);
 
             for (int i = 0; i < Form1.mapSize; i++)
             {
@@ -100,6 +127,32 @@ namespace ShipBattle
                         fillNeighborhoodShip(i, j);
                     }
                 }
+            }
+        }
+
+        public bool checkShips()
+        {
+            int isAliveNow = 0;
+
+            foreach (Ship s in ships){
+                s.checkLife();
+                if (s.getIsAlive())
+                {
+                    isAliveNow++;
+                }
+            }
+            MessageBox.Show(isAliveNow.ToString());
+            bool flag = isAliveNow == countOfAlives;
+            countOfAlives = isAliveNow;
+
+            return flag;
+        }
+
+        public void getHit(int y, int x)
+        {
+            foreach(Ship s in ships)
+            {
+                s.getHit(y, x);
             }
         }
 

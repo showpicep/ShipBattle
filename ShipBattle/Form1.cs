@@ -17,6 +17,8 @@ namespace ShipBattle
         public const int cellSize = 30;
         public string alphabet = "АБВГДЕЖЗИК";
 
+        private List<Ship> ships;
+
         public int[,] myMap = new int[mapSize, mapSize];
         public int[,] enemyMap = new int[mapSize, mapSize];
 
@@ -29,7 +31,7 @@ namespace ShipBattle
         public CheckedListBox checkedListBox2 = new CheckedListBox();
         Dictionary<int, int> countShips = new Dictionary<int, int>();
 
-        public Bot bot;
+        private Bot bot;
 
         public Form1()
         {
@@ -40,6 +42,8 @@ namespace ShipBattle
 
         public void Init()
         {
+            ships = new List<Ship>();
+
             isPlaying = false;
             CreateMaps();
             bot = new Bot(ref enemyMap, ref myMap, enemyButtons, myButtons);
@@ -192,11 +196,18 @@ namespace ShipBattle
         /// <param name="l"></param>
         public void addShip(List<Point> l)
         {
+            Ship ship = new Ship();
+
             foreach (Point p in l)
             {
+                MyPoint newPoint = new MyPoint(p);
+                ship.addPoint(newPoint);
+
                 myMap[p.Y, p.X] = 1;
                 myButtons[p.Y, p.X].BackColor = Color.Red;
             }
+
+            ships.Add(ship);
 
             for (int i = 0; i < mapSize; i++)
             {
@@ -357,6 +368,7 @@ namespace ShipBattle
 
                 if (enemyMap[Y, X] == 1)
                 {
+                    bot.getHit(Y, X);
                     pressedButton.BackColor = Color.Red; // попадание
                     pressedButton.Text = "X";
                     enemyButtons[Y, X].Enabled = false; //чтобы нельзя было повторно нажать на кнопку
@@ -374,7 +386,47 @@ namespace ShipBattle
             else
                 MessageBox.Show("Нужно начать игру");
 
+            if (hit)
+            {
+                bool flag = bot.checkShips(); // true == осталось по-прежнему
+                MessageBox.Show(flag.ToString());
+                if (!flag)
+                {
+                    Render();
+                    // вызвать метод, проверяющий конец игры
+                }
+            }
+
             return hit;
+        }
+
+        private void Render()
+        {
+            List<List<MyPoint>> list = bot.GetDeads();
+
+            foreach (List<MyPoint> l in list)
+            {
+                MyPoint first = l[0];
+                MyPoint last = l[l.Count - 1];
+
+                first = new MyPoint(new Point(first.point.X - 1, first.point.Y - 1));
+                last = new MyPoint(new Point(last.point.X + 1, last.point.Y + 1));
+
+                for (int i = first.point.Y; i <= last.point.Y; i++)
+                {
+                    for (int j = first.point.X; j <= last.point.X; j++)
+                    {
+
+                        if (i > 0 && j > 0 && i < 11 && j < 11 && enemyMap[i, j] != 2)
+                        {
+                            enemyButtons[i, j].BackColor = Color.Aquamarine;
+                            enemyButtons[i, j].Enabled = false;
+                        }
+                        
+                    }
+                }
+
+            }
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -407,5 +459,6 @@ namespace ShipBattle
             MessageBox.Show("Вы не выбрали корабль");
         }
 
+        
     }
 }

@@ -21,10 +21,10 @@ C:\Users\Acer\Desktop\myproj\ShipBattle\ShipBattle\obj\Debug\ShipBattle.pdb
 C:\Users\Acer\Desktop\myproj2113\ShipBattle\ShipBattle\bin\Debug\ShipBattle.exe.config
 C:\Users\Acer\Desktop\myproj2113\ShipBattle\ShipBattle\bin\Debug\ShipBattle.exe
 C:\Users\Acer\Desktop\myproj2113\ShipBattle\ShipBattle\bin\Debug\ShipBattle.pdb
-C:\Users\Acer\Desktop\myproj2113\ShipBattle\ShipBattle\obj\Debug\ShipBattle.csprojAssemblyReference.cache
 C:\Users\Acer\Desktop\myproj2113\ShipBattle\ShipBattle\obj\Debug\ShipBattle.Form1.resources
 C:\Users\Acer\Desktop\myproj2113\ShipBattle\ShipBattle\obj\Debug\ShipBattle.Properties.Resources.resources
 C:\Users\Acer\Desktop\myproj2113\ShipBattle\ShipBattle\obj\Debug\ShipBattle.csproj.GenerateResource.cache
 C:\Users\Acer\Desktop\myproj2113\ShipBattle\ShipBattle\obj\Debug\ShipBattle.csproj.CoreCompileInputs.cache
 C:\Users\Acer\Desktop\myproj2113\ShipBattle\ShipBattle\obj\Debug\ShipBattle.exe
 C:\Users\Acer\Desktop\myproj2113\ShipBattle\ShipBattle\obj\Debug\ShipBattle.pdb
+C:\Users\Acer\Desktop\myproj2113\ShipBattle\ShipBattle\obj\Debug\ShipBattle.csproj.AssemblyReference.cache

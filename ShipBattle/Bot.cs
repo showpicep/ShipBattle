@@ -99,7 +99,7 @@ namespace ShipBattle
         }
 
         /// <summary>
-        /// Оюозначаем корабль числом 1 в матрице
+        /// Обозначаем корабль числом 1 в матрице
         /// </summary>
         /// <param name="isHorizontal"></param>
         /// <param name="size"></param>
@@ -130,6 +130,30 @@ namespace ShipBattle
             }
         }
 
+        /// <summary>
+        /// Полуучаем кол-во живых кораблей 
+        /// </summary>
+        /// <returns></returns>
+        public int GetIsAlive()
+        {
+            int isAliveNow = 0;
+
+            foreach (Ship s in ships)
+            {
+                s.checkLife();
+                if (s.getIsAlive())
+                {
+                    isAliveNow++;
+                }
+            }
+
+            return isAliveNow;
+        }
+
+        /// <summary>
+        /// Проверка на жизнь корабля
+        /// </summary>
+        /// <returns></returns>
         public bool checkShips()
         {
             int isAliveNow = 0;
@@ -141,7 +165,7 @@ namespace ShipBattle
                     isAliveNow++;
                 }
             }
-            MessageBox.Show(isAliveNow.ToString());
+            //MessageBox.Show(isAliveNow.ToString());// Выводит кол-во живых кораблей
             bool flag = isAliveNow == countOfAlives;
             countOfAlives = isAliveNow;
 
@@ -301,8 +325,28 @@ namespace ShipBattle
         {
             bool hit = false;
 
+            Random r = new Random();
 
-            return hit;
+            int posX = r.Next(1, Form1.mapSize);
+            int posY = r.Next(1, Form1.mapSize);
+            if (Form1.isPlaying)
+            {
+                while (enemyButtons[posY, posX].BackColor == Color.Blue || enemyButtons[posY, posX].BackColor == Color.Black)
+                {
+                    posX = r.Next(1, Form1.mapSize);
+                    posY = r.Next(1, Form1.mapSize);
+                }
+
+                if (enemyMap[posY, posX] == 1)
+                {
+                    hit = true;
+                    enemyMap[posY, posX] = 0;
+                    enemyButtons[posY, posX].BackColor = Color.Blue;
+                    enemyButtons[posY, posX].Text = "X";
+                }
+            }
+
+                return hit;
         }
     }
 }

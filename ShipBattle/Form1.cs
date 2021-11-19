@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Media;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -29,6 +30,7 @@ namespace ShipBattle
 
         public CheckedListBox checkedListBox1 = new CheckedListBox();
         public CheckedListBox checkedListBox2 = new CheckedListBox();
+        public ComboBox chooseBot = new ComboBox();
         Dictionary<int, int> countShips = new Dictionary<int, int>();
 
         private Bot bot;
@@ -108,7 +110,7 @@ namespace ShipBattle
                     else
                     {
                         enemyButtons[i, j] = button;
-                        button.Click += new EventHandler(PlayerShoot);// CHANGE!
+                        button.Click += new EventHandler(PlayerShoot);
                     }
                     this.Controls.Add(button);
                 }
@@ -137,13 +139,21 @@ namespace ShipBattle
             checkedListBox1.SelectionMode = SelectionMode.One;
             this.Controls.Add(checkedListBox1);
 
-
             string[] words2 = { "Вертикально", "Горизонтально" };
             checkedListBox2.Location = new Point(250, mapSize * cellSize + 50);
             for (int i = 0; i < words2.Length; i++)
                 checkedListBox2.Items.Add(words2[i]);
             checkedListBox2.SelectionMode = SelectionMode.One;
             this.Controls.Add(checkedListBox2);
+
+            
+
+            string[] words3 = { "Easy", "Hard" };
+            chooseBot.Location = new Point(400, mapSize * cellSize + 50);
+            for (int i = 0; i < words3.Length; i++)
+                chooseBot.Items.Add(words3[i]);
+            chooseBot.SelectedItem = "Easy";
+            this.Controls.Add(chooseBot);
 
             countShips.Add(4, 1);
             countShips.Add(3, 2);
@@ -237,7 +247,7 @@ namespace ShipBattle
                         myMap[k, c] = -1;
                         if (k!=0 && c!= 0 && k!=12 && c!=12)
                         {
-                            myButtons[k, c].BackColor = Color.Aquamarine;
+                            myButtons[k, c].BackColor = Color.AntiqueWhite;
                         }
                     }
             }
@@ -254,6 +264,32 @@ namespace ShipBattle
             return !(i < mapSize && j < mapSize && myMap[i, j] != 1);
         }
 
+        /// <summary>
+        /// Метод нужен для подсчета живых кораблей игрока
+        /// </summary>
+        /// <returns></returns>
+        public int GetIsMyAlive()
+        {
+            int isAliveNow = 0;
+
+            foreach (Ship s in ships)
+            {
+                s.checkLife();
+                if (s.getIsAlive())
+                {
+                    isAliveNow++;
+                }
+            }
+
+            return isAliveNow;
+        }
+
+        /// <summary>
+        /// Вся реализация расстоновки корабля тут 
+        /// </summary>
+        /// <param name="positionInCheckedListBoxOne"></param>
+        /// <param name="pressedButton"></param>
+        /// <param name="isHorizontal"></param>
         private void readFields(int positionInCheckedListBoxOne, Button pressedButton, bool isHorizontal)
         {
             bool flag;
@@ -299,12 +335,12 @@ namespace ShipBattle
                     }
                     else
                     {
-                        showError_1();
+                        Errors.showError_1();
                     }
                 }
                 else
                 {
-                    showError_2();
+                    Errors.showError_2();
                 }
             }
             else
@@ -312,6 +348,12 @@ namespace ShipBattle
                 MessageBox.Show("Корабли с количеством палуб " + positionInCheckedListBoxOne + " закончились");
             }
         }
+
+        /// <summary>
+        /// Вызываем метод расстоновки кораблей параллельно проверяя на некоторые ошибки 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         public void ConfigureShips(object sender, EventArgs e)
         {
             int positionInCheckedListBoxOne = Convert.ToInt32(checkedListBox1.SelectedItem);
@@ -322,17 +364,17 @@ namespace ShipBattle
             {
                 if (positionInCheckedListBoxOne == 0 && positionInCheckedListBoxTwo == "")
                 {
-                    showError_5();
+                    Errors.showError_5();
                 }
 
                 else if (positionInCheckedListBoxOne == 0)
                 {
-                    showError_3();
+                    Errors.showError_3();
                 }
 
                 else if (positionInCheckedListBoxTwo == "")
                 {
-                    showError_4();
+                    Errors.showError_4();
                 }
             }
             else
@@ -342,20 +384,31 @@ namespace ShipBattle
 
         }
 
+        /// <summary>
+        /// Здесь происходит смена очереди стрльбы
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         public void PlayerShoot(object sender, EventArgs e)
         {
+            string chosenBot = Convert.ToString(chooseBot.SelectedItem);
             Button pressedButton = sender as Button;
             bool playerTurn = Shoot(pressedButton);
 
             if (!playerTurn)
             {
-                bot.Shoot();
+                if (chosenBot == "Easy")
+                    bot.Shoot();
+                else
+                    bot.SmartShoot();
             }
 
         }
 
+
         public bool Shoot(Button pressedButton)
         {
+            
             bool hit = false;
             if (isPlaying)
             {
@@ -389,17 +442,40 @@ namespace ShipBattle
             if (hit)
             {
                 bool flag = bot.checkShips(); // true == осталось по-прежнему
-                MessageBox.Show(flag.ToString());
+                //MessageBox.Show(flag.ToString());
                 if (!flag)
                 {
+                    if (bot.GetIsAlive() == 9)
+                    {
+                        SoundForGame.FB();
+                        Render();
+                    }
+                    else if (bot.GetIsAlive()<9)
+
+                    {
+                    SoundForGame.LakadMatatag();
                     Render();
+                    }
                     // вызвать метод, проверяющий конец игры
                 }
             }
 
+            if (bot.GetIsAlive() == 0)
+            {
+                SoundForGame.PlayerWin();
+                MessageBox.Show("ПОБЕДА");
+            }
+            if (GetIsMyAlive() == 0)
+            {
+                SoundForGame.BotWin();
+                MessageBox.Show("Победа бота(");
+            }
             return hit;
         }
 
+        /// <summary>
+        /// Отрисовка окрестности убитых кораблей на мапе бота 
+        /// </summary>
         private void Render()
         {
             List<List<MyPoint>> list = bot.GetDeads();
@@ -433,32 +509,6 @@ namespace ShipBattle
         {
 
         }
-
-        private void showError_1()
-        {
-            MessageBox.Show("ЧИТАЙ ПРАВИЛААА1");
-        }
-
-        private void showError_2()
-        {
-            MessageBox.Show("ЧИТАЙ ПРАВИЛААА2");
-        }
-
-        private void showError_3()
-        {
-            MessageBox.Show("Выберите количество палуб у корабля");
-        }
-
-        private void showError_4()
-        {
-            MessageBox.Show("Выберите положение коробля");
-        }
-
-        private void showError_5()
-        {
-            MessageBox.Show("Вы не выбрали корабль");
-        }
-
         
     }
 }

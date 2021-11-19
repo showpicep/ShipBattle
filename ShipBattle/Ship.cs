@@ -17,12 +17,17 @@ namespace ShipBattle
             ship = new List<MyPoint>();
             isAlive = true;
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="p"></param>
         public void addPoint(MyPoint p)
         {
             ship.Add(p);
         }
-
+        /// <summary>
+        /// Проверка на жизнь клетки
+        /// </summary>
         public void checkLife()
         {
             int k = 0;
@@ -35,11 +40,19 @@ namespace ShipBattle
 
             isAlive = k != 0;
         }
-
+        /// <summary>
+        /// Возвращаем значение жив ли корабль
+        /// </summary>
+        /// <returns></returns>
         public bool getIsAlive()
         {
             return isAlive;
         }
+        /// <summary>
+        /// Задаем значение жив ли корабль 
+        /// </summary>
+        /// <param name="y"></param>
+        /// <param name="x"></param>
         public void getHit(int y, int x) 
         {
             foreach(MyPoint p in ship)
@@ -50,7 +63,10 @@ namespace ShipBattle
                 }
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public List<MyPoint> getPoints()
         {
             return ship;

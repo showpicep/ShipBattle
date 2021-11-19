@@ -8,24 +8,29 @@ using System.Drawing;
 
 namespace ShipBattle
 {
-    class Bot
+    class Bot 
     {
         private List<Ship> ships = new List<Ship>();
 
         private int countOfAlives;
 
+        Player player;
+
         public int[,] myMap = new int[Form1.mapSize, Form1.mapSize];// карта бота 
         public int[,] enemyMap = new int[Form1.mapSize, Form1.mapSize];// карта игрока 
+
         private Random rdn = new Random();
+
         public Button[,] myButtons = new Button[Form1.mapSize, Form1.mapSize];
         public Button[,] enemyButtons = new Button[Form1.mapSize, Form1.mapSize];
 
         Dictionary<int, int> countShips = new Dictionary<int, int>();
 
-        public Bot(ref int[,] myMap,ref int[,] enemyMap, Button[,] myButtons, Button[,] enemyButtons)
+        public Bot(ref int[,] myMap,ref int[,] enemyMap,ref Button[,] myButtons,ref Button[,] enemyButtons, ref Player player)
         {
             countOfAlives = 10;
             this.myMap = myMap;
+    
             this.enemyMap = enemyMap;
             this.enemyButtons = enemyButtons;
             this.myButtons = myButtons;
@@ -34,21 +39,8 @@ namespace ShipBattle
             countShips.Add(3, 2);
             countShips.Add(2, 3);
             countShips.Add(1, 4);
-        }
 
-        public List<List<MyPoint>> GetDeads()
-        {
-            List<List<MyPoint>> list = new List<List<MyPoint>>();
-
-            foreach(Ship s in ships)
-            {
-                if (!s.getIsAlive())
-                {
-                    list.Add(s.getPoints());
-                }
-            }
-
-            return list;
+            this.player = player; //new Player(ref enemyMap, ref myMap, ref enemyButtons, ref myButtons);
         }
       
 
@@ -113,7 +105,7 @@ namespace ShipBattle
                 MyPoint newPoint = new MyPoint(p);
                 ship.addPoint(newPoint);
                 myMap[p.Y, p.X] = 1;
-                //myButtons[p.Y, p.X].BackColor = Color.Red;//
+                myButtons[p.Y, p.X].BackColor = Color.Red;//
             }
 
             ships.Add(ship);
@@ -127,56 +119,6 @@ namespace ShipBattle
                         fillNeighborhoodShip(i, j);
                     }
                 }
-            }
-        }
-
-        /// <summary>
-        /// Полуучаем кол-во живых кораблей 
-        /// </summary>
-        /// <returns></returns>
-        public int GetIsAlive()
-        {
-            int isAliveNow = 0;
-
-            foreach (Ship s in ships)
-            {
-                s.checkLife();
-                if (s.getIsAlive())
-                {
-                    isAliveNow++;
-                }
-            }
-
-            return isAliveNow;
-        }
-
-        /// <summary>
-        /// Проверка на жизнь корабля
-        /// </summary>
-        /// <returns></returns>
-        public bool checkShips()
-        {
-            int isAliveNow = 0;
-
-            foreach (Ship s in ships){
-                s.checkLife();
-                if (s.getIsAlive())
-                {
-                    isAliveNow++;
-                }
-            }
-            //MessageBox.Show(isAliveNow.ToString());// Выводит кол-во живых кораблей
-            bool flag = isAliveNow == countOfAlives;
-            countOfAlives = isAliveNow;
-
-            return flag;
-        }
-
-        public void getHit(int y, int x)
-        {
-            foreach(Ship s in ships)
-            {
-                s.getHit(y, x);
             }
         }
 
@@ -287,6 +229,72 @@ namespace ShipBattle
             //}
         }
 
+        /// <summary>
+        /// Полуучаем кол-во живых кораблей 
+        /// </summary>
+        /// <returns></returns>
+        public int GetIsAlive()
+        {
+            int isAliveNow = 0;
+
+            foreach (Ship s in ships)
+            {
+                s.checkLife();
+                if (s.getIsAlive())
+                {
+                    isAliveNow++;
+                }
+            }
+
+            return isAliveNow;
+        }
+
+        public List<List<MyPoint>> GetDeads()
+        {
+            List<List<MyPoint>> list = new List<List<MyPoint>>();
+
+            foreach (Ship s in ships)
+            {
+                if (!s.getIsAlive())
+                {
+                    list.Add(s.getPoints());
+                }
+            }
+
+            return list;
+        }
+
+        /// <summary>
+        /// Проверка на жизнь корабля
+        /// </summary>
+        /// <returns></returns>
+        public bool checkShips()
+        {
+            int isAliveNow = 0;
+
+            foreach (Ship s in ships)
+            {
+                s.checkLife();
+                if (s.getIsAlive())
+                {
+                    isAliveNow++;
+                }
+            }
+            //MessageBox.Show(isAliveNow.ToString());// Выводит кол-во живых кораблей
+            bool flag = isAliveNow == countOfAlives;
+            countOfAlives = isAliveNow;
+
+            return flag;
+        }
+
+        public void getHit(int y, int x)
+        {
+            foreach (Ship s in ships)
+            {
+                s.getHit(y, x);
+            }
+        }
+
         public bool Shoot()
         {
             bool hit =false;
@@ -296,8 +304,8 @@ namespace ShipBattle
             int posX = r.Next(1, Form1.mapSize);
             int posY = r.Next(1, Form1.mapSize);
             if (Form1.isPlaying)
-            {
-                while (enemyButtons[posY, posX].BackColor == Color.Blue || enemyButtons[posY, posX].BackColor == Color.Black)
+            {          
+                while (enemyMap[posY, posX] == 2 || enemyMap[posY, posX] == -2)
                 {
                     posX = r.Next(1, Form1.mapSize);
                     posY = r.Next(1, Form1.mapSize);
@@ -305,18 +313,23 @@ namespace ShipBattle
 
                 if (enemyMap[posY, posX] == 1)
                 {
-                    hit = true;
-                    enemyMap[posY, posX] = 0;
-                    enemyButtons[posY, posX].BackColor = Color.Blue;
+                    player.getHit(posY, posX);
+
+                    enemyButtons[posY, posX].BackColor = Color.Green; // попадение
                     enemyButtons[posY, posX].Text = "X";
+                    enemyMap[posY, posX] = 2;
+                    hit = true;
                 }
                 else
                 {
                     hit = false;
-                    enemyButtons[posY, posX].BackColor = Color.Black;
+                    enemyButtons[posY, posX].BackColor = Color.Black;  // промах 
                 }
                 if (hit)
+                {
                     Shoot();
+                    
+                }
             }
             return hit;
         }
@@ -331,7 +344,7 @@ namespace ShipBattle
             int posY = r.Next(1, Form1.mapSize);
             if (Form1.isPlaying)
             {
-                while (enemyButtons[posY, posX].BackColor == Color.Blue || enemyButtons[posY, posX].BackColor == Color.Black)
+                while (enemyMap[posY, posX] == 2 || enemyMap[posY, posX] == -1 || enemyMap[posY, posX] == -2) 
                 {
                     posX = r.Next(1, Form1.mapSize);
                     posY = r.Next(1, Form1.mapSize);
@@ -339,14 +352,60 @@ namespace ShipBattle
 
                 if (enemyMap[posY, posX] == 1)
                 {
-                    hit = true;
-                    enemyMap[posY, posX] = 0;
-                    enemyButtons[posY, posX].BackColor = Color.Blue;
+                    player.getHit(posY, posX);
+
+                    enemyButtons[posY, posX].BackColor = Color.Green;
                     enemyButtons[posY, posX].Text = "X";
+                    enemyMap[posY, posX] = 2;
+                    hit = true;
+                }
+                else
+                {
+                    hit = false;
+                    enemyButtons[posY, posX].BackColor = Color.Black;  // промах 
+                }
+
+                if (hit)
+                {
+                    SmartShoot();
                 }
             }
-
                 return hit;
         }
+
+
+        /// <summary>
+        /// Отрисовка окрестности убитых ботом кораблей
+        /// </summary>
+        public void Render()
+        {
+            List<List<MyPoint>> list = player.GetDeads();
+
+            foreach (List<MyPoint> l in list)
+            {
+                MyPoint first = l[0];
+                MyPoint last = l[l.Count - 1];
+
+                first = new MyPoint(new Point(first.point.X - 1, first.point.Y - 1));
+                last = new MyPoint(new Point(last.point.X + 1, last.point.Y + 1));
+
+                for (int i = first.point.Y; i <= last.point.Y; i++)
+                {
+                    for (int j = first.point.X; j <= last.point.X; j++)
+                    {
+
+                        if (i > 0 && j > 0 && i < 11 && j < 11 && enemyMap[i, j] != 2)
+                        {
+                            enemyButtons[i, j].BackColor = Color.Aquamarine;
+                            enemyButtons[i, j].Enabled = false;
+                        }
+
+                    }
+                }
+
+            }
+        }
+
+
     }
 }

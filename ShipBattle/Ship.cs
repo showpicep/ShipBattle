@@ -9,7 +9,7 @@ namespace ShipBattle
 {
     class Ship
     {
-        private List<MyPoint> ship;
+        List<MyPoint> ship;
         private bool isAlive;
 
         public Ship()
@@ -48,6 +48,8 @@ namespace ShipBattle
         {
             return isAlive;
         }
+
+
         /// <summary>
         /// Задаем значение жив ли корабль 
         /// </summary>
@@ -63,6 +65,8 @@ namespace ShipBattle
                 }
             }
         }
+
+
         /// <summary>
         /// 
         /// </summary>

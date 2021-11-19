@@ -32,6 +32,12 @@ namespace ShipBattle
             SoundPlayer sp = new SoundPlayer(@"C:\Users\Acer\Desktop\myproj2113\ShipBattle\Sounds\Eta-Prosto-Nechta.wav");
             sp.Play();
         }
+
+        static public void Vilat()
+        {
+            SoundPlayer sp = new SoundPlayer(@"C:\Users\Acer\Desktop\myproj2113\ShipBattle\Sounds\Chat-Wheel.wav");
+            sp.Play();
+        }
     }
 
 }

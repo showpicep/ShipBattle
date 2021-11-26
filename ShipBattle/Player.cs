@@ -251,6 +251,12 @@ namespace ShipBattle
             {
                 s.getHit(y, x);
             }
+
+        }
+
+        public List<Ship> getShips()
+        {
+            return ships;
         }
 
         //public void Render()

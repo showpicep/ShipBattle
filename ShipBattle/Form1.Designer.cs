@@ -41,9 +41,12 @@ namespace ShipBattle
             this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
 
+            this.components = new System.ComponentModel.Container();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
         }
 
         #endregion
+        private System.Windows.Forms.Timer timer1;
     }
 }
 

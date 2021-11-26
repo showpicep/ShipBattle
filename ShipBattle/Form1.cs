@@ -31,7 +31,10 @@ namespace ShipBattle
         public CheckedListBox checkedListBox1 = new CheckedListBox();
         public CheckedListBox checkedListBox2 = new CheckedListBox();
         public ComboBox chooseBot = new ComboBox();
+        PictureBox temp = new PictureBox();
+
         Dictionary<int, int> countShips = new Dictionary<int, int>();
+        AnimationForHit anim = new AnimationForHit();
 
         private Bot bot;
         private Player player;
@@ -53,6 +56,8 @@ namespace ShipBattle
             bot = new Bot(ref enemyMap, ref myMap, ref enemyButtons, ref myButtons, ref player);
             bot.ConfigureShips();
         }
+
+
 
         /// <summary>
         /// Создание карты
@@ -157,10 +162,11 @@ namespace ShipBattle
             chooseBot.SelectedItem = "Easy";
             this.Controls.Add(chooseBot);
 
-            //countShips.Add(4, 1);
-            //countShips.Add(3, 2);
-            //countShips.Add(2, 3);
-            //countShips.Add(1, 4);
+            
+            temp.Location = new Point(400, mapSize * cellSize + 100);
+            temp.Size = new System.Drawing.Size(30, 30);
+            temp.BackColor = Color.Black;
+            this.Controls.Add(temp);
         }
 
         /// <summary>
@@ -239,9 +245,9 @@ namespace ShipBattle
                 if (!playerTurn)
                 {
                     if (chosenBot == "Easy")
-                        bot.Shoot();
+                        bot.Shoot(false);
                     if (chosenBot == "Hard") 
-                        bot.SmartShoot();
+                        bot.Shoot(true);
                 }
             }
 
@@ -265,12 +271,23 @@ namespace ShipBattle
             return isPlaying;
         }
 
+        private async void Print(Button pressedButton)
+        {
+            foreach (Image img in anim.frame.ToList())
+            {
+                pressedButton.Image = img;
+
+                await Task.Delay(100);
+            }
+        }
+
         public bool Shoot(Button pressedButton)
         {
-
+            
             bool hit = false;
             if (isPlaying)
             {
+                anim.GettingImages();
                 int delta = 0;
                 if (pressedButton.Location.X > 350)
                     delta = 350;
@@ -281,8 +298,9 @@ namespace ShipBattle
                 if (enemyMap[Y, X] == 1)
                 {
                     bot.getHit(Y, X);
-                    pressedButton.BackColor = Color.Red; // попадание
-                    pressedButton.Text = "X";
+                    Print(enemyButtons[Y,X]);
+                    //pressedButton.BackColor = Color.Red; // попадание
+                    //pressedButton.Text = "X";
                     enemyButtons[Y, X].Enabled = false; //чтобы нельзя было повторно нажать на кнопку
                     enemyMap[Y, X] = 2;
                     hit = true;
@@ -370,6 +388,9 @@ namespace ShipBattle
 
             }
         }
+
+
+
 
         private void Form1_Load(object sender, EventArgs e)
         {

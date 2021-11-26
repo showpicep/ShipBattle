@@ -10,6 +10,8 @@ namespace ShipBattle
 {
     class Bot 
     {
+        AnimationForHit anim = new AnimationForHit();
+
         private List<Ship> ships = new List<Ship>();
 
         private int countOfAlives;
@@ -105,7 +107,7 @@ namespace ShipBattle
                 MyPoint newPoint = new MyPoint(p);
                 ship.addPoint(newPoint);
                 myMap[p.Y, p.X] = 1;
-                myButtons[p.Y, p.X].BackColor = Color.Red;//
+                //myButtons[p.Y, p.X].BackColor = Color.Red;//
             }
 
             ships.Add(ship);
@@ -295,17 +297,82 @@ namespace ShipBattle
             }
         }
 
-        public bool Shoot()
+        public bool Shoot(bool isSmart)
         {
-            bool hit =false;
+            anim.GettingImages();
+
+            List<Ship> list = player.getShips();
+
+            List<Ship> listOfShips = new List<Ship>();
+
+            foreach (Ship s in list)
+            {
+                if (!s.getIsAlive()) {
+                    continue;
+                }
+
+                bool flag = true;
+
+                foreach (MyPoint p in s.getPoints())
+                {
+                    flag = flag && p.getIsAlive();
+                }
+
+                if (!flag)
+                {
+                    listOfShips.Add(s);
+                }
+            }
 
             Random r = new Random();
 
-            int posX = r.Next(1, Form1.mapSize);
-            int posY = r.Next(1, Form1.mapSize);
+            double chance = r.NextDouble();
+
+            if (chance < 0.5 && listOfShips.Count >= 1)
+            {
+                Ship s = listOfShips[r.Next(0, listOfShips.Count - 1)];
+                MyPoint point = null;
+
+                foreach (MyPoint p in s.getPoints())
+                {
+                    if (p.getIsAlive())
+                    {
+                        point = p;
+                    }
+                }
+
+                if (point == null) 
+                {
+                    return doShoot(r.Next(1, Form1.mapSize), r.Next(1, Form1.mapSize),false);
+                }
+
+                return doShoot(point.point.X, point.point.Y, true);
+            }
+            else
+            {
+                return doShoot(r.Next(1, Form1.mapSize), r.Next(1, Form1.mapSize),false);
+            }
+        }
+
+        private async void Print(Button pressedButton)
+        {
+            foreach (Image img in anim.frame.ToList())
+            {
+                pressedButton.Image = img;
+
+                await Task.Delay(100);
+            }
+        }
+
+        private bool doShoot(int posX, int posY, bool isSmart)
+        {
+
+            Random r = new Random();
+            bool hit = false;
+
             if (Form1.isPlaying)
-            {          
-                while (enemyMap[posY, posX] == 2 || enemyMap[posY, posX] == -2)
+            {
+                while (enemyMap[posY, posX] == 2 || enemyMap[posY, posX] == -2 || enemyButtons[posY, posX].BackColor == Color.Aquamarine)
                 {
                     posX = r.Next(1, Form1.mapSize);
                     posY = r.Next(1, Form1.mapSize);
@@ -315,8 +382,10 @@ namespace ShipBattle
                 {
                     player.getHit(posY, posX);
 
-                    enemyButtons[posY, posX].BackColor = Color.Green; // попадение
-                    enemyButtons[posY, posX].Text = "X";
+                    Print(enemyButtons[posY, posX]);
+
+                    //enemyButtons[posY, posX].BackColor = Color.Green; // попадение
+                    //enemyButtons[posY, posX].Text = "X";
                     enemyMap[posY, posX] = 2;
                     hit = true;
                 }
@@ -327,51 +396,37 @@ namespace ShipBattle
                 }
                 if (hit)
                 {
-                    Shoot();
-                    
+                    if (isSmart)
+                    {
+                        Shoot(true);
+                    }
+                    else
+                    {
+                        Shoot(false);
+                    }
+
                 }
             }
             return hit;
         }
 
-        public bool SmartShoot()
-        {
-            bool hit = false;
+        //public bool SmartShoot(bool isFirst = false)
+        //{
+        //    List<List<MyPoint>> list = player.GetDeads();
+            
+        //    bool hit = Shoot();
+        //    Random r = new Random();
+        //    double chance = r.NextDouble();
 
-            Random r = new Random();
+        //    if (hit)
+        //    {
 
-            int posX = r.Next(1, Form1.mapSize);
-            int posY = r.Next(1, Form1.mapSize);
-            if (Form1.isPlaying)
-            {
-                while (enemyMap[posY, posX] == 2 || enemyMap[posY, posX] == -1 || enemyMap[posY, posX] == -2) 
-                {
-                    posX = r.Next(1, Form1.mapSize);
-                    posY = r.Next(1, Form1.mapSize);
-                }
+        //    }
+        //    else
+        //        Shoot();
 
-                if (enemyMap[posY, posX] == 1)
-                {
-                    player.getHit(posY, posX);
-
-                    enemyButtons[posY, posX].BackColor = Color.Green;
-                    enemyButtons[posY, posX].Text = "X";
-                    enemyMap[posY, posX] = 2;
-                    hit = true;
-                }
-                else
-                {
-                    hit = false;
-                    enemyButtons[posY, posX].BackColor = Color.Black;  // промах 
-                }
-
-                if (hit)
-                {
-                    SmartShoot();
-                }
-            }
-                return hit;
-        }
+        //    return hit;
+        //}
 
 
         /// <summary>
@@ -405,7 +460,6 @@ namespace ShipBattle
 
             }
         }
-
 
     }
 }
